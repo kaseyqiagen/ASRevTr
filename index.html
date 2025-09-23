@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>AS Revenue Tracker</title>
+  <style>
+    html, body {
+      margin: 0;
+      padding: 0;
+      background-color: #000;
+      font-family: sans-serif;
+      height: 100%;
+    }
+
+    .mission-badge {
+      position: absolute;
+      top: 20px;
+      right: -220px; /* Start offscreen, but not too far */
+      background-color: rgba(0, 0, 0, 0.6);
+      color: #00ff87;
+      padding: 12px 16px;
+      border-radius: 100px;
+      font-size: 14px;
+      font-weight: 600;
+      box-shadow: 0 0 10px rgba(0, 255, 135, 0.4);
+      z-index: 99;
+      animation: slideIn 1.2s ease-out forwards 1.2s;
+      transition: all 0.5s ease;
+    }
+
+    @keyframes slideIn {
+      to { right: 20px; }
+    }
+
+    .mission-badge.glow {
+      background-color: rgba(0, 0, 0, 0.8);
+      box-shadow: 0 0 25px 5px #00ff87;
+      transform: scale(1.05);
+    }
+
+    .space-container {
+      position: relative;
+      width: 100%;
+      height: 100vh;
+      background: url('https://64.media.tumblr.com/9f54223e09f505f258228056c1d0c0c9/4f82c81d56280110-ad/s1280x1920/530bf084fe9ef6c055eb3fc3033c4d6a0e9ac776.pnj') no-repeat center;
+      background-size: cover;
+      overflow: hidden;
+    }
+
+    .moon {
+      position: absolute;
+      top: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 100px;
+      z-index: 2;
+    }
+
+    .rocket-wrapper {
+      position: absolute;
+      bottom: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      transition: bottom 2s ease-out;
+      z-index: 3;
+    }
+
+    .rocket {
+      width: 40px;
+      display: block;
+      margin: 0 auto;
+      position: relative;
+      z-index: 2;
+    }
+
+    .rocket-flame {
+      width: 16px;
+      height: 24px;
+      margin: -5px auto 0;
+      background: radial-gradient(circle, orange 0%, red 80%, transparent 100%);
+      border-radius: 50%;
+      animation: flicker 0.2s infinite;
+      z-index: 1;
+    }
+
+    @keyframes flicker {
+      0%, 100% { transform: scale(1) translateY(0); opacity: 0.9; }
+      50% { transform: scale(1.2) translateY(1px); opacity: 0.5; }
+    }
+
+    .rocket-smoke {
+      font-size: 14px;
+      color: #ccc;
+      background-color: rgba(255, 255, 255, 0.08);
+      padding: 2px 10px;
+      border-radius: 20px;
+      font-style: italic;
+      pointer-events: none;
+      white-space: nowrap;
+      text-align: center;
+      margin-top: 6px;
+    }
+
+    .label {
+      position: absolute;
+      bottom: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      text-align: center;
+      color: white;
+      font-size: 20px;
+      background-color: rgba(0,20,43,0.6);
+      padding: 0.75em 1.5em;
+      border-radius: 30px;
+      min-width: 300px;
+      z-index: 3;
+    }
+
+    .milestone {
+      font-size: 14px;
+      margin-top: 6px;
+      color: #ccc;
+    }
+
+    .particle {
+      position: absolute;
+      width: 6px;
+      height: 6px;
+      background: #ccc;
+      border-radius: 50%;
+      opacity: 0.3;
+      animation: rise 3s infinite ease-in;
+    }
+
+    @keyframes rise {
+      0% { transform: translateY(0); opacity: 0.4; }
+      100% { transform: translateY(-40px); opacity: 0; }
+    }
+
+    /* Landing Scene */
+    .landing-scene {
+      position: absolute;
+      top: 30px;
+      left: 50%;
+      transform: translateX(-50%) scale(0);
+      opacity: 0;
+      z-index: 5;
+      transition: transform 0.8s ease-out, opacity 0.8s;
+    }
+
+    .landing-scene.visible {
+      transform: translateX(-50%) scale(1);
+      opacity: 1;
+    }
+
+    .landing-group {
+      position: relative;
+      width: 70px;
+      height: 60px;
+    }
+
+    .flag {
+      position: absolute;
+      left: 31px;
+      bottom: 0;
+      width: 40px;
+      animation: wave 1s infinite ease-in-out;
+      transform-origin: left center;
+      z-index: 2;
+    }
+
+    .astronaut {
+      position: absolute;
+      left: 10px;
+      bottom: 0;
+      width: 30px;
+      animation: bounceIn 0.8s ease-out forwards;
+      z-index: 1;
+    }
+
+    @keyframes wave {
+      0%, 100% { transform: rotateZ(0deg); }
+      50% { transform: rotateZ(4deg); }
+    }
+
+    @keyframes bounceIn {
+      0% { transform: translateY(-40px) scale(0.8); opacity: 0; }
+      60% { transform: translateY(10px) scale(1.1); opacity: 1; }
+      100% { transform: translateY(0) scale(1); }
+    }
+  </style>
+</head>
+<body>
+
+<!-- Mission Badge -->
+<div class="mission-badge" id="mission-badge">🎯 Mission: Land on the Moon</div>
+
+<div class="space-container">
+  <!-- Moon -->
+  <img src="https://64.media.tumblr.com/37caa2df4b4b5045fa161d18004f908d/4f82c81d56280110-fd/s500x750/c6a8f338cedfbba953a1d2768108046b524d0475.pnj" alt="Moon" class="moon" />
+
+  <!-- Rocket -->
+  <div class="rocket-wrapper" id="rocket-wrapper">
+    <img src="https://64.media.tumblr.com/20b45463d866d441a47d93a50ce9ee02/4f82c81d56280110-4e/s250x400/866de800e6ca9e80b247c8ea5d028894665a3708.pnj" alt="Rocket" class="rocket" />
+    <div class="rocket-flame"></div>
+    <div class="rocket-smoke" id="rocket-smoke">$0</div>
+  </div>
+
+  <!-- Landing -->
+  <div class="landing-scene" id="landing-scene">
+    <div class="landing-group">
+      <img src="https://64.media.tumblr.com/8cbd589b2be14fea0f2db54213a1f300/4f82c81d56280110-fe/s400x600/9278943f396cb339d0fac1b95b2794db011f062a.pnj" alt="Flag" class="flag" />
+      <img src="https://64.media.tumblr.com/94d9c30dd3e15169b09dcb577376a1c3/4f82c81d56280110-92/s400x600/1383fde36c20f0f3295353c0165344534f500d7c.pnj" alt="Astronaut" class="astronaut" />
+    </div>
+  </div>
+
+  <!-- Label -->
+  <div class="label" id="percent-label">
+    Loading...
+    <div class="milestone" id="milestone-label"></div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+<script>
+  const currentRevenue = 11959000;   // 👈 Update this
+  const goal = 17500000;
+  const percent = Math.min(currentRevenue / goal, 1);
+
+  const rocketWrapper = document.getElementById("rocket-wrapper");
+  const rocketSmoke = document.getElementById("rocket-smoke");
+  const label = document.getElementById("percent-label");
+  const landingScene = document.getElementById("landing-scene");
+  const missionBadge = document.getElementById("mission-badge");
+
+  let milestone = "🛠 Launch Pad";
+  if (percent >= 0.25 && percent < 0.50) milestone = "☁️ Breaking the Clouds";
+  else if (percent >= 0.50 && percent < 0.75) milestone = "🛰 Entering Orbit";
+  else if (percent >= 0.75 && percent < 0.99) milestone = "🌌 Approaching the Moon";
+  else if (percent >= 0.99) milestone = "🌕 Lunar Landing Achieved!";
+
+  window.addEventListener("load", () => {
+    const container = document.querySelector(".space-container");
+    const containerHeight = container.offsetHeight;
+    const rocketHeight = rocketWrapper.offsetHeight || 60;
+    const maxRocketTravel = containerHeight - rocketHeight - 100;
+    const bottomPosition = percent * maxRocketTravel;
+
+    rocketWrapper.style.bottom = `${bottomPosition}px`;
+    rocketSmoke.textContent = `$${currentRevenue.toLocaleString()}`;
+    label.innerHTML = `
+      🚀 $${currentRevenue.toLocaleString()} earned<br>
+      📈 ${(percent * 100).toFixed(1)}% of $${goal.toLocaleString()} goal
+      <div class="milestone">${milestone}</div>
+    `;
+
+    if (percent >= 0.99) {
+      // Rocket bounce
+      rocketWrapper.style.transition = "bottom 2s ease-in-out, transform 0.4s ease-in-out";
+      rocketWrapper.style.transform = "translateX(-50%) translateY(-10px)";
+      setTimeout(() => {
+        rocketWrapper.style.transform = "translateX(-50%) translateY(0)";
+      }, 400);
+
+      // Confetti
+      confetti({
+        particleCount: 200,
+        spread: 90,
+        origin: { y: 0.2 }
+      });
+
+      // Show landing scene
+      landingScene.classList.add("visible");
+
+      // Update badge
+      missionBadge.textContent = "🎉 Mission Accomplished!";
+      missionBadge.classList.add("glow");
+    }
+
+    // Floating particles
+    for (let i = 0; i < 10; i++) {
+      const particle = document.createElement("div");
+      particle.className = "particle";
+      particle.style.left = `${48 + Math.random() * 8}%`;
+      particle.style.bottom = `${bottomPosition}px`;
+      particle.style.animationDelay = `${Math.random() * 2}s`;
+      container.appendChild(particle);
+    }
+  });
+</script>
+
+</body>
+</html>
